@@ -1,6 +1,6 @@
 ## Descrição
 
-Esse projeto tem por finalidade simular a criação de um ERP em python, simulando através de arquivos txt salvar informações e realizar interções via prompt de comando com o uauário.
+Esse projeto tem por finalidade simular a criação de um ERP em python, simulando através de arquivos txt salvar informações e realizar interações via prompt de comando com o usuário.
 
 É um sistema de gerenciamento que permite a manipulação de dados relacionados a categorias, estoque, fornecedores, pessoas, funcionários, clientes e vendas.
 
