@@ -29,6 +29,8 @@ Pouco a pouco vamos incrementando esse código e deixando mais robustos:
     - python -m venv .venv (windows)
     - Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
     - .\.venv\Scripts\activate
+    - python -m pip install --upgrade pip
+    - pip install SQLAlchemy, Psycopg2
 
 - **Executar os arquivos:**
 
