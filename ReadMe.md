@@ -1,8 +1,8 @@
 ## Descrição
 
-Esse projeto tem por finalidade a criação de uma proposta de ERP em python e realizar interações via prompt de comando com o usuário.
+Esse projeto tem por finalidade a criação de uma proposta de um programa que simula um ERP ou sistema de controle de estoque em python, para utilizar basta o usuário realizar interações via prompt de comando dada as orientações que o sistema irá propor.
 
-É um sistema de gerenciamento que permite a manipulação de dados relacionados a categorias, estoque, fornecedores, pessoas, funcionários, clientes e vendas. 
+É um sistema de gerenciamento que permite a manipulação de dados relacionados produtos e suas categorias, estoque, fornecedores, pessoas, funcionários, clientes e vendas. 
 
 Esse projata criar tabelas via ORM em um banco local postgres e salva todas as alterações.
 
@@ -18,6 +18,7 @@ Esse projeto utiliza o framework Python, SQLAlchemy, Psycopg2, Docker e Postgres
 Pouco a pouco vamos incrementando esse código e deixando mais robustos:
 
 - próximos passos, revisar e incrementar as entidades;
+- realizar automação via terraform para fazer um deploy em uma EC2 e transferir o banco postgres local para RDS da AWS. 
 
 ## Execução do Projeto
 
