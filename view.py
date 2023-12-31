@@ -1,19 +1,7 @@
-#View
-
-import controler
+import controller
 import os.path
 
-def criar_arquivos(*nome):
-    for i in nome:
-        if not os.path.exists(i):
-            with open(i, 'w') as file:
-                file.write('')
-
-criar_arquivos('categorias.txt', 'estoque.txt',
-                 'fornecedores.txt', 'pessoas.txt',
-                 'funcionarios.txt', 'clientes.txt', 'vendas.txt')
-
-print("Bem-vindo ao nosso ERP!")
+print("Bem-vindo ao nosso ERP!\n")
 
 if __name__ == "__main__":
     while True:
@@ -31,7 +19,7 @@ if __name__ == "__main__":
             continue
 
         if local == 1:
-            categoria = controler.ControlerCategoria()
+            categoria = controller.ControllerCategoria()
             while True: 
                 opcao = int(input("Digite 1 para cadastrar um categoria \n"
                           "Digite 2 para remover um categoria \n"
@@ -58,7 +46,7 @@ if __name__ == "__main__":
                     print("Opção inválida!")
         
         elif local == 2:
-            estoque = controler.ControlerEstoque()
+            estoque = controller.ControllerEstoque()
             while True:
                 opcao = int(input("Digite 1 para cadastrar um produto\n"
                                   "Digite 2 para remover um produto\n"
@@ -90,7 +78,7 @@ if __name__ == "__main__":
                     print("Opção inválida!")
 
         elif local == 3:
-            fornecedores = controler.ControlerFornecedor()
+            fornecedores = controller.ControllerFornecedor()
             while True:
                 opcao = int(input("Digite 1 para cadastrar um fornecedor\n"
                                   "Digite 2 para remover um fornecedor\n"
@@ -124,7 +112,7 @@ if __name__ == "__main__":
                     print("Opção inválida!")
 
         elif local == 4:
-            pessoas = controler.ControlerPessoa()
+            pessoas = controller.ControllerPessoa()
             while True:
                 opcao = int(input("Digite 1 para cadastrar uma pessoa\n"
                                 "Digite 2 para remover uma pessoa\n"
@@ -160,7 +148,7 @@ if __name__ == "__main__":
                     print("Opção inválida!")
 
         elif local == 5:
-            funcionarios = controler.ControlerFuncionario()
+            funcionarios = controller.ControllerFuncionario()
             while True:
                 opcao = int(input("Digite 1 para cadastrar um funcionário\n"
                                 "Digite 2 para remover um funcionário\n"
@@ -200,7 +188,7 @@ if __name__ == "__main__":
                     print("Opção inválida!")
 
         elif local == 6:
-            clientes = controler.ControlerCliente()
+            clientes = controller.ControllerCliente()
             while True:
                 opcao = int(input("Digite 1 para cadastrar um cliente\n"
                                   "Digite 2 para remover um cliente\n"
@@ -236,7 +224,7 @@ if __name__ == "__main__":
                     print("Opção inválida!")
 
         elif local == 7:
-            vendas = controler.ControlerVendas()
+            vendas = controller.ControllerVendas()
             while True:
                 opcao = int(input("Digite 1 para cadastrar uma venda\n"
                                 "Digite 2 para mostrar vendas\n"

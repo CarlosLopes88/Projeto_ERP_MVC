@@ -1,55 +1,82 @@
-#Models
-
+from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, DateTime
+from sqlalchemy.orm import declarative_base, relationship
+from sqlalchemy.orm import sessionmaker
 from datetime import datetime
 
-class Categoria:
-    def __init__(self, categoria):
-        self.categoria = categoria
+USER = 'my_user'
+SECRET = 'my_user2023'
+HOST = 'localhost' #seria o ip do banco de dados neste caso como é local é localhost.
+DATABASE = 'my_db'
+PORT = '5434' #porta padrão do postgresql é 5432 mas comos estamos usando o docker, foi alterado para 5434.
+CONN = f'postgresql+psycopg2://{USER}:{SECRET}@{HOST}:{PORT}/{DATABASE}' #string de conexão com o banco de dados.
 
-class Produtos:
-    def __init__(self, nome, preco, categoria):
-        self.nome = nome
-        self.preco = preco
-        self.categoria = categoria
+engine = create_engine(CONN, echo=True) #echo=True é para mostrar o que está acontecendo no banco de dados.
+session = sessionmaker(bind=engine) #criando uma sessão com o banco de dados
+Base = declarative_base() #criando uma base para criar as tabelas.
 
-class Estoque:
-    def __init__(self, produto: Produtos, quantidade):
-        self.produto = produto
-        self.quantidade = quantidade
+class Categoria(Base):
+    __tablename__ = 'categorias' #nome da tabela no banco de dados.
+    id = Column(Integer, primary_key=True)
+    categoria = Column(String, nullable=False)
 
-class Vendas:
-    def __init__(self, itensvendidos: Produtos, vendedor, comprador, quantidadevendida, valorvendido, data = datetime.now().strftime("%d/%m/%Y")):
-        self.itensvendidos = itensvendidos
-        self.vendedor = vendedor
-        self.comprador = comprador
-        self.quantidadevendida = quantidadevendida
-        self.valorvendido = valorvendido
-        self.data = data
+class Produtos(Base):
+    __tablename__ = 'produtos' #nome da tabela no banco de dados.
+    id = Column(Integer, primary_key=True)
+    nome = Column(String, nullable=False)
+    preco = Column(Integer, nullable=False)
+    categoria_id = Column(Integer, ForeignKey('categorias.id'))
+    categoria = relationship('Categoria')
 
-class Fornecedor:
-    def __init__(self, nome, cnpj, endereco, telefone, email):
-        self.nome = nome
-        self.cnpj = cnpj
-        self.endereco = endereco
-        self.telefone = telefone
-        self.email = email  
+class Estoque(Base):
+    __tablename__ = 'estoque' #nome da tabela no banco de dados.
+    id = Column(Integer, primary_key=True)
+    produto_id = Column(Integer, ForeignKey('produtos.id'))
+    produto = relationship('Produtos')
+    quantidade = Column(Integer, nullable=False)
 
-class Pessoa:
-    def __init__(self, nome, cpf, telefone, endereco, email):
-        self.nome = nome
-        self.cpf = cpf
-        self.telefone = telefone
-        self.endereco = endereco
-        self.email = email
+class Vendas(Base):
+    __tablename__ = 'vendas' #nome da tabela no banco de dados.
+    id = Column(Integer, primary_key=True)
+    itensvendidos_id = Column(Integer, ForeignKey('produtos.id'))
+    itensvendidos = relationship('Produtos')
+    vendedor = Column(String, nullable=False)
+    comprador = Column(String, nullable=False)
+    quantidadevendida = Column(Integer, nullable=False)
+    valorvendido = Column(Integer, nullable=False)
+    data = Column(DateTime, default=datetime.now)
+
+class Fornecedor(Base):
+    __tablename__ = 'fornecedores'#nome da tabela no banco de dados.
+    id = Column(Integer, primary_key=True)
+    nome = Column(String, nullable=False)
+    cnpj = Column(String, nullable=False)
+    endereco = Column(String, nullable=False)
+    telefone = Column(String, nullable=False)
+    email = Column(String, nullable=False)
+
+class Pessoa(Base):
+    __tablename__ = 'pessoas'
+    id = Column(Integer, primary_key=True)
+    nome = Column(String, nullable=False)
+    cpf = Column(String, nullable=False)
+    telefone = Column(String, nullable=False)
+    endereco = Column(String, nullable=False)
+    email = Column(String, nullable=False)
+    tipo = Column(String, nullable=False)  # Adicionando uma coluna para distinguir Funcionario e Cliente
+    __mapper_args__ = {'polymorphic_on': tipo}
 
 class Funcionario(Pessoa):
-    def __init__(self, nome, cpf, telefone, endereco, email, idfuncionario, cargo, salario):
-        self.idfuncionario = idfuncionario
-        self.salario = salario
-        self.cargo = cargo
-        super(Funcionario, self).__init__(nome, cpf, telefone, endereco, email)
+    __tablename__ = 'funcionarios'
+    id = Column(Integer, ForeignKey('pessoas.id'), primary_key=True)
+    idfuncionario = Column(String, nullable=False)
+    cargo = Column(String, nullable=False)
+    salario = Column(Integer, nullable=False)
+    __mapper_args__ = {'polymorphic_identity': 'funcionario'}
 
 class Cliente(Pessoa):
-    def __init__(self, nome, cpf, telefone, endereco, email, idcliente):
-        self.idcliente = idcliente
-        super(Cliente, self).__init__(nome, cpf, telefone, endereco, email)
+    __tablename__ = 'clientes'
+    id = Column(Integer, ForeignKey('pessoas.id'), primary_key=True)
+    idcliente = Column(String, nullable=False)
+    __mapper_args__ = {'polymorphic_identity': 'cliente'}
+
+Base.metadata.create_all(engine) #criando as tabelas no banco de dados.

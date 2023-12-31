@@ -1,147 +1,234 @@
-#Data Access Object
-
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 from models import *
+
+class Database:
+    _instance = None
+
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super(Database, cls).__new__(cls)
+            engine = create_engine(CONN, echo=True)
+            Session = sessionmaker(bind=engine)
+            cls._instance.session = Session()
+        return cls._instance
+
+def conectar_db():
+    return Database().session
 
 class DaoCategoria:
     @classmethod
-    def save(cls, categoria):
-        with open('categorias.txt', 'a') as file:
-            file.write(f'{categoria}\n')
+    def save(cls, categoria: Categoria, session=None):
+        if not session:
+            session = conectar_db()
+        session.add(categoria)
+        session.commit()
 
     @classmethod
-    def read(cls):
-        with open('categorias.txt', 'r') as file:
-            cls.categorias = file.readlines()
+    def read(cls, session=None):
+        if not session:
+            session = conectar_db()
+        return session.query(Categoria).all()
 
-            cls.categoria = list(map(lambda x: x.replace('\n', ''), cls.categorias))
-  
-            categoria_list = []
-            for i in cls.categoria:
-                categoria_list.append(Categoria(i))
-            return categoria_list
+    @classmethod
+    def delete(cls, categoria: Categoria, session=None):
+        if not session:
+            session = conectar_db()
+        session.delete(categoria)
+        session.commit()
+
+    @classmethod
+    def update(cls, categoria_antiga: Categoria, categoria_nova: Categoria, session=None):
+        if not session:
+            session = conectar_db()
+        categoria_antiga.categoria = categoria_nova.categoria
+        session.commit()
 
 class DaoVendas:
     @classmethod
-    def save(cls, venda: Vendas):
-        with open('vendas.txt', 'a') as file:
-            file.write(f'{venda.itensvendidos.nome}|{venda.itensvendidos.preco}|{venda.itensvendidos.categoria}|{venda.vendedor}|{venda.comprador}|{venda.quantidadevendida}|{venda.valorvendido}|{venda.data}\n')
+    def save(cls, venda: Vendas, session=None):
+        if not session:
+            session = conectar_db()
+        session.add(venda)
+        session.commit()
 
     @classmethod
-    def read(cls):
-        with open('vendas.txt', 'r') as file:
-            cls.venda = file.readlines()
+    def read(cls, session=None):
+        if not session:
+            session = conectar_db()
+        return session.query(Vendas).all()
+    
+    @classmethod
+    def delete(cls, venda: Vendas, session=None):
+        if not session:
+            session = conectar_db()
+        session.delete(venda)
+        session.commit()
 
-            cls.venda = [line.strip() for line in cls.venda]
-
-            cls.venda = list(map(lambda x: x.split('|'), cls.venda))
-
-            venda_list = []
-            for i in cls.venda:
-                if len(i) >= 6:  # Ajuste aqui para garantir que há informações suficientes
-                    venda_list.append(Vendas(Produtos(i[0], i[1], i[2]), i[3], i[4], i[5], i[6]))
-        return venda_list
+    @classmethod
+    def update(cls, venda_antiga: Vendas, venda_nova: Vendas, session=None):
+        if not session:
+            session = conectar_db()
+        # Atualize os atributos conforme necessário
+        venda_antiga.vendedor = venda_nova.vendedor
+        venda_antiga.comprador = venda_nova.comprador
+        venda_antiga.quantidadevendida = venda_nova.quantidadevendida
+        venda_antiga.valorvendido = venda_nova.valorvendido
+        venda_antiga.data = venda_nova.data
+        session.commit()
 
 class DaoEstoque:
     @classmethod
-    def save(cls, produto: Produtos, quantidade):
-        with open('estoque.txt', 'a') as file:
-            file.write(f'{produto.nome}|{produto.preco}|{produto.categoria}|{quantidade}\n')
+    def save(cls, produto: Produtos, quantidade, session=None):
+        if not session:
+            session = conectar_db()
+        estoque = Estoque(produto=produto, quantidade=quantidade)
+        session.add(estoque)
+        session.commit()
 
     @classmethod
-    def read(cls):
-        with open('estoque.txt', 'r') as file:
-            cls.estoque = file.readlines()
+    def read(cls, session=None):
+        if not session:
+            session = conectar_db()
+        return session.query(Estoque).all()
 
-            cls.estoque = [line.strip() for line in cls.estoque]
+    @classmethod
+    def delete(cls, estoque: Estoque, session=None):
+        if not session:
+            session = conectar_db()
+        session.delete(estoque)
+        session.commit()
 
-            cls.estoque = list(map(lambda x: x.split('|'), cls.estoque))
-
-            estoque_list = []
-            for i in cls.estoque:
-                if len(i) > 0:
-                    estoque_list.append(Estoque(Produtos(i[0], i[1], i[2]), i[3]))
-            return estoque_list
+    @classmethod
+    def update(cls, estoque_antigo: Estoque, estoque_novo: Estoque, session=None):
+        if not session:
+            session = conectar_db()
+        estoque_antigo.produto = estoque_novo.produto
+        estoque_antigo.quantidade = estoque_novo.quantidade
+        session.commit()
 
 class DaoFornecedor:
     @classmethod
-    def save(cls, fornecedor: Fornecedor):
-        with open('fornecedores.txt', 'a') as file:
-            file.write(f'{fornecedor.nome}|{fornecedor.cnpj}|{fornecedor.endereco}|{fornecedor.telefone}|{fornecedor.email}\n')
+    def save(cls, fornecedor: Fornecedor, session=None):
+        if not session:
+            session = conectar_db()
+        session.add(fornecedor)
+        session.commit()
 
     @classmethod
-    def read(cls):
-        with open('fornecedores.txt', 'r') as file:
-            cls.fornecedores = file.readlines()
-
-            cls.fornecedores = [line.strip() for line in cls.fornecedores]
-
-            cls.fornecedores = list(map(lambda x: x.split('|'), cls.fornecedores))
-
-            fornecedores_list = []
-            for i in cls.fornecedores:
-                if len(i) > 0:
-                    fornecedores_list.append(Fornecedor(i[0], i[1], i[2], i[3], i[4]))
-            return fornecedores_list
-
-class DaPessoa:
-    @classmethod
-    def save(cls, pessoa: Pessoa):
-        with open('pessoas.txt', 'a') as file:
-            file.write(f'{pessoa.nome}|{pessoa.cpf}|{pessoa.telefone}|{pessoa.endereco}|{pessoa.email}\n')
+    def read(cls, session=None):
+        if not session:
+            session = conectar_db()
+        return session.query(Fornecedor).all()
 
     @classmethod
-    def read(cls):
-        with open('pessoas.txt', 'r') as file:
-            cls.pessoas = file.readlines()
+    def delete(cls, fornecedor: Fornecedor, session=None):
+        if not session:
+            session = conectar_db()
+        session.delete(fornecedor)
+        session.commit()
 
-            cls.pessoas = [line.strip() for line in cls.pessoas]
+    @classmethod
+    def update(cls, fornecedor_antigo: Fornecedor, fornecedor_novo: Fornecedor, session=None):
+        if not session:
+            session = conectar_db()
+        fornecedor_antigo.nome = fornecedor_novo.nome
+        fornecedor_antigo.cnpj = fornecedor_novo.cnpj
+        fornecedor_antigo.endereco = fornecedor_novo.endereco
+        fornecedor_antigo.telefone = fornecedor_novo.telefone
+        fornecedor_antigo.email = fornecedor_novo.email
+        session.commit()
 
-            cls.pessoas = list(map(lambda x: x.split('|'), cls.pessoas))
+class DaoPessoa:
+    @classmethod
+    def save(cls, pessoa: Pessoa, session=None):
+        if not session:
+            session = conectar_db()
+        session.add(pessoa)
+        session.commit()
 
-            pessoas_list = []
-            for i in cls.pessoas:
-                if len(i) > 0:
-                    pessoas_list.append(Pessoa(i[0], i[1], i[2], i[3], i[4]))
-            return pessoas_list
+    @classmethod
+    def read(cls, session=None):
+        if not session:
+            session = conectar_db()
+        return session.query(Pessoa).all()
+
+    @classmethod
+    def delete(cls, pessoa: Pessoa, session=None):
+        if not session:
+            session = conectar_db()
+        session.delete(pessoa)
+        session.commit()
+
+    @classmethod
+    def update(cls, pessoa_antiga: Pessoa, pessoa_nova: Pessoa, session=None):
+        if not session:
+            session = conectar_db()
+        pessoa_antiga.nome = pessoa_nova.nome
+        pessoa_antiga.cpf = pessoa_nova.cpf
+        pessoa_antiga.telefone = pessoa_nova.telefone
+        pessoa_antiga.endereco = pessoa_nova.endereco
+        pessoa_antiga.email = pessoa_nova.email
+        session.commit()
 
 class DaoCliente:
     @classmethod
-    def save(cls, cliente: Cliente):
-        with open('clientes.txt', 'a') as file:
-            file.write(f'{cliente.nome}|{cliente.cpf}|{cliente.telefone}|{cliente.endereco}|{cliente.email}|{cliente.idcliente}\n')
+    def save(cls, cliente: Cliente, session=None):
+        if not session:
+            session = conectar_db()
+        session.add(cliente)
+        session.commit()
 
     @classmethod
-    def read(cls):
-        with open('clientes.txt', 'r') as file:
-            cls.clientes = file.readlines()
+    def read(cls, session=None):
+        if not session:
+            session = conectar_db()
+        return session.query(Cliente).all()
 
-            cls.clientes = [line.strip() for line in cls.clientes]
+    @classmethod
+    def delete(cls, cliente: Cliente, session=None):
+        if not session:
+            session = conectar_db()
+        session.delete(cliente)
+        session.commit()
 
-            cls.clientes = list(map(lambda x: x.split('|'), cls.clientes))
-
-            clientes_list = []
-            for i in cls.clientes:
-                if len(i) > 0:
-                    clientes_list.append(Cliente(i[0], i[1], i[2], i[3], i[4], i[5]))
-            return clientes_list
+    @classmethod
+    def update(cls, cliente_antigo: Cliente, cliente_novo: Cliente, session=None):
+        if not session:
+            session = conectar_db()
+        cliente_antigo.nome = cliente_novo.nome
+        cliente_antigo.cpf = cliente_novo.cpf
+        cliente_antigo.telefone = cliente_novo.telefone
+        cliente_antigo.endereco = cliente_novo.endereco
+        cliente_antigo.email = cliente_novo.email
+        session.commit()
 
 class DaoFuncionario:
     @classmethod
-    def save(cls, funcionario: Funcionario):
-        with open('funcionarios.txt', 'a') as file:
-            file.write(f'{funcionario.nome}|{funcionario.cpf}|{funcionario.telefone}|{funcionario.endereco}|{funcionario.email}|{funcionario.idfuncionario}|{funcionario.cargo}|{funcionario.salario}\n')
+    def save(cls, funcionario: Funcionario, session=None):
+        if not session:
+            session = conectar_db()
+        session.add(funcionario)
+        session.commit()
 
     @classmethod
-    def read(cls):
-        with open('funcionarios.txt', 'r') as file:
-            cls.funcionarios = file.readlines()
+    def read(cls, session=None):
+        if not session:
+            session = conectar_db()
+        return session.query(Funcionario).all()
 
-            cls.funcionarios = [line.strip() for line in cls.funcionarios]
+    @classmethod
+    def delete(cls, funcionario: Funcionario, session=None):
+        if not session:
+            session = conectar_db()
+        session.delete(funcionario)
+        session.commit()
 
-            cls.funcionarios = list(map(lambda x: x.split('|'), cls.funcionarios))
-
-            funcionarios_list = []
-            for i in cls.funcionarios:
-                if len(i) > 0:
-                    funcionarios_list.append(Funcionario(i[0], i[1], i[2], i[3], i[4], i[5], i[6], i[7]))
-            return funcionarios_list
+    @classmethod
+    def update(cls, funcionario_antigo: Funcionario, funcionario_novo: Funcionario, session=None):
+        if not session:
+            session = conectar_db()
+        funcionario_antigo.idfuncionario = funcionario_novo.idfuncionario
+        funcionario_antigo.cargo = funcionario_novo.cargo
+        funcionario_antigo.salario = funcionario_novo.salario
+        session.commit()
